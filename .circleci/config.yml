@@ -16,6 +16,7 @@ jobs:
     - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/cron-get cron-get.go
 
     # Build Docker
-    - run: docker build -t ${TAG}:${CIRCLECI_BUILD_NUM} .
+    - run: docker build -t cg .
     - run: docker login -u jasonhendry -p ${DOCKER_PASS}
+    - run: docker tag cg ${TAG}:${CIRCLECI_BUILD_NUM}
     - run: docker push ${TAG}:${CIRCLECI_BUILD_NUM}
