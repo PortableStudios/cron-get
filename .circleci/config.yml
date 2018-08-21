@@ -17,5 +17,5 @@ jobs:
 
     # Build Docker
     - run: docker build -t ${TAG}:${CIRCLECI_BUILD_NUM} .
-    - run: docker login
+    - run: docker login -u jasonhendry -p ${DOCKER_PASS}
     - run: docker push ${TAG}:${CIRCLECI_BUILD_NUM}
