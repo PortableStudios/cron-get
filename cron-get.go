@@ -7,13 +7,23 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 	"os/signal"
 	"syscall"
 )
 
 func main() {
-	c := cron.New()
-	c.AddFunc(os.Getenv("SCHEDULE"), func() {
+	var c *cron.Cron
+	if os.Getenv("TZ") != "" {
+		tz,err := time.LoadLocation(os.Getenv("TZ"));
+		if err != nil {
+			log.Fatal(err)
+		}
+		c = cron.NewWithLocation(tz)
+	} else {
+		c = cron.New()
+	}
+	err := c.AddFunc(os.Getenv("SCHEDULE"), func() {
 		log.Print("Fetching " + os.Getenv("URL"))
 		resp, err := http.Get(os.Getenv("URL"))
 		if err != nil {
@@ -24,6 +34,9 @@ func main() {
 		}
 		io.Copy(os.Stdout, resp.Body)
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 	c.Start()
 
 	// Now Run until SIGTERM or SIGINT
