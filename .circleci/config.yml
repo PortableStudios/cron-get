@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    docker:
+    - image: jasonhendry/go-docker-builder:latest
+    working_directory: /go/src/github.com/PortableStudios/cron-get
+    environment:
+      TAG: portable/cron-get
+    steps:
+    - checkout
+    - setup_remote_docker:   # (2)
+        docker_layer_caching: true
+
+    - run: go get -d && cd cmd && go get -d
+    - run: mkdir -p build
+    - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/cron-get cron-get.go
+
+    # Build Docker
+    - run: docker build -t ${TAG}:${CIRCLECI_BUILD_NUM} .
+    - run: docker login
+    - run: docker push ${TAG}:${CIRCLECI_BUILD_NUM}
