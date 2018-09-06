@@ -7,15 +7,15 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
 	var c *cron.Cron
 	if os.Getenv("TZ") != "" {
-		tz,err := time.LoadLocation(os.Getenv("TZ"));
+		tz, err := time.LoadLocation(os.Getenv("TZ"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -25,7 +25,14 @@ func main() {
 	}
 	err := c.AddFunc(os.Getenv("SCHEDULE"), func() {
 		log.Print("Fetching " + os.Getenv("URL"))
-		resp, err := http.Get(os.Getenv("URL"))
+		get, err := http.NewRequest("GET", os.Getenv("URL"), nil)
+		if os.Getenv("USERNAME")+os.Getenv("PASSWORD") != "" {
+			get.SetBasicAuth(os.Getenv("USER"), os.Getenv("PASS"))
+		}
+		if err != nil {
+			log.Print("Failed: ", err)
+		}
+		resp, err := http.Client{}.Do(get)
 		if err != nil {
 			log.Print("Failed: ", err)
 		}
