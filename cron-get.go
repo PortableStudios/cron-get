@@ -32,7 +32,8 @@ func main() {
 		if err != nil {
 			log.Print("Failed: ", err)
 		}
-		resp, err := http.Client{}.Do(get)
+		hc := &http.Client{}
+		resp, err := hc.Do(get)
 		if err != nil {
 			log.Print("Failed: ", err)
 		}
